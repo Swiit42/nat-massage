@@ -12,6 +12,6 @@
 <script setup lang="ts">
 import { useUiStore } from '@/stores/ui'
 import Toaster from '@/components/ui/toast/Toaster.vue'
-
+console.log('VERSION TEST 20260604')
 const uiStore = useUiStore()
 </script>
