@@ -22,7 +22,7 @@ router.get('/', requireAuth, async (_req, res) => {
     const reservations = await prisma.reservation.findMany({ orderBy: { startTime: 'asc' } })
     res.json(reservations)
   } catch (err) {
-    console.error('[GET /reservations]', err)
+    console.error(err)
     res.status(500).json({ error: 'Помилка сервера' })
   }
 })
@@ -42,7 +42,7 @@ router.get('/slots', async (req, res) => {
     })
     res.json(reservations)
   } catch (err) {
-    console.error('[GET /slots]', err)
+    console.error(err)
     res.status(500).json({ error: 'Помилка сервера' })
   }
 })
@@ -81,14 +81,12 @@ router.post('/', async (req, res) => {
       sendEmail({ to: process.env.EMAIL_USER, subject: `[Новий запис] ${subject}`, html }).catch(console.error)
     }
 
-    console.log('[Google Calendar] Appel pour', firstName, lastName)
     createCalendarEvent({ firstName, lastName, phone, message, startTime: start, endTime: end })
-      .then((ev) => { if (ev) console.log('[Google Calendar] OK:', ev.htmlLink) })
-      .catch((err) => console.error('[Google Calendar] ERREUR:', err?.message || err))
+      .catch(console.error)
 
     res.status(201).json(reservation)
   } catch (err) {
-    console.error('[POST /reservations]', err)
+    console.error(err)
     res.status(500).json({ error: 'Помилка сервера' })
   }
 })

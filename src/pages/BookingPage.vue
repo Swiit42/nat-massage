@@ -24,7 +24,7 @@
         </div>
 
         <!-- Calendar -->
-        <WeekCalendar @select-slot="openBookingModal" />
+        <WeekCalendar ref="calendarRef" @select-slot="openBookingModal" />
 
         <!-- Success message -->
         <transition
@@ -59,12 +59,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import type WeekCalendarType from '@/components/booking/WeekCalendar.vue'
 import { Clock, CalendarDays, MapPin, CheckCircle2 } from 'lucide-vue-next'
 import Navbar from '@/components/layout/Navbar.vue'
 import Footer from '@/components/layout/Footer.vue'
 import WeekCalendar from '@/components/booking/WeekCalendar.vue'
 import BookingModal from '@/components/booking/BookingModal.vue'
 
+const calendarRef = ref<InstanceType<typeof WeekCalendarType> | null>(null)
 const modalOpen = ref(false)
 const selectedSlot = ref<{ start: Date; end: Date } | null>(null)
 const showSuccess = ref(false)
@@ -83,5 +85,6 @@ function openBookingModal(start: Date, end: Date) {
 function onBookingSuccess() {
   showSuccess.value = true
   setTimeout(() => (showSuccess.value = false), 6000)
+  calendarRef.value?.fetchSlots()
 }
 </script>

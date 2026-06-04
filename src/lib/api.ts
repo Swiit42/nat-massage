@@ -6,9 +6,4 @@ const baseURL = window.location.hostname === 'localhost'
 
 const api = axios.create({ baseURL })
 
-api.interceptors.request.use((config) => {
-  console.log('REQUEST =>', `${config.baseURL}${config.url}`)
-  return config
-})
-
 export default api

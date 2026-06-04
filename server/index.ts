@@ -20,10 +20,6 @@ app.use(cors({
   credentials: true,
 }))
 app.use(express.json())
-app.use((req, res, next) => {
-  console.log(`[${req.method}] ${req.originalUrl}`)
-  next()
-})
 
 app.use('/api/reservations', reservationsRouter)
 app.use('/api/admin', adminRouter)

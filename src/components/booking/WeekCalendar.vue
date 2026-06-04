@@ -1,119 +1,82 @@
 <template>
-  <div class="rounded-3xl bg-white shadow-card dark:bg-stone-900 overflow-hidden">
-    <!-- Week navigation header -->
-    <div class="flex items-center justify-between px-6 py-5 border-b border-stone-100 dark:border-stone-800">
+  <div class="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden">
+
+    <!-- Header: arrows + day names -->
+    <div class="flex items-stretch border-b border-stone-200 dark:border-stone-800">
+
       <button
         :disabled="!canGoPrev"
-        class="flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 text-stone-600 transition-all hover:bg-forest-50 hover:border-forest-300 hover:text-forest-700 disabled:opacity-30 disabled:cursor-not-allowed dark:border-stone-700 dark:text-stone-400 dark:hover:bg-forest-900"
         @click="prevWeek"
+        class="w-10 flex items-center justify-center text-stone-400 hover:text-stone-700 disabled:opacity-20 disabled:cursor-not-allowed border-r border-stone-200 dark:border-stone-800 transition-colors flex-shrink-0"
       >
         <ChevronLeft class="h-4 w-4" />
       </button>
 
-      <div class="text-center">
-        <h3 class="font-semibold text-stone-900 dark:text-stone-100 capitalize">
-          {{ monthLabel }}
-        </h3>
-        <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-          {{ weekRangeLabel }}
-        </p>
+      <div class="flex-1 grid grid-cols-7">
+        <div
+          v-for="day in weekDays"
+          :key="day.iso"
+          :class="[
+            'text-center py-4 border-r last:border-r-0 border-stone-200 dark:border-stone-800',
+            day.isPast ? 'opacity-30' : '',
+          ]"
+        >
+          <p class="text-sm font-medium text-stone-700 dark:text-stone-300 capitalize">{{ day.weekdayLabel }}</p>
+          <p class="text-xs text-stone-400 dark:text-stone-500 mt-0.5">{{ day.dateLabel }}</p>
+        </div>
       </div>
 
       <button
-        class="flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 text-stone-600 transition-all hover:bg-forest-50 hover:border-forest-300 hover:text-forest-700 dark:border-stone-700 dark:text-stone-400 dark:hover:bg-forest-900"
         @click="nextWeek"
+        class="w-10 flex items-center justify-center text-stone-400 hover:text-stone-700 border-l border-stone-200 dark:border-stone-800 transition-colors flex-shrink-0"
       >
         <ChevronRight class="h-4 w-4" />
       </button>
+
     </div>
 
-    <!-- Day columns -->
-    <div class="grid grid-cols-7 border-b border-stone-100 dark:border-stone-800">
-      <div
-        v-for="day in weekDays"
-        :key="day.iso"
-        :class="[
-          'flex flex-col items-center py-4 transition-colors border-r last:border-r-0 border-stone-100 dark:border-stone-800',
-          day.isToday && selectedDay !== day.iso && 'bg-forest-50 dark:bg-forest-950/50',
-          selectedDay === day.iso ? 'bg-forest-700' : '',
-          !day.isToday && selectedDay !== day.iso && !day.isPast ? 'hover:bg-stone-50 dark:hover:bg-stone-800 cursor-pointer' : '',
-          day.isPast ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer',
-        ]"
-        @click="!day.isPast && selectDay(day.iso)"
-      >
-        <span
-          :class="[
-            'text-[10px] font-semibold uppercase tracking-wider mb-1.5',
-            selectedDay === day.iso ? 'text-forest-200' : 'text-stone-400 dark:text-stone-500',
-          ]"
-        >
-          {{ day.weekdayShort }}
-        </span>
-        <span
-          :class="[
-            'flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors',
-            selectedDay === day.iso
-              ? 'bg-white/20 text-white'
-              : day.isToday
-              ? 'border-2 border-forest-500 text-forest-700 dark:text-forest-300'
-              : 'text-stone-700 dark:text-stone-300',
-          ]"
-        >
-          {{ day.date }}
-        </span>
-      </div>
-    </div>
+    <!-- Slots grid -->
+    <div class="flex items-stretch">
+      <div class="w-10 border-r border-stone-200 dark:border-stone-800 flex-shrink-0" />
 
-    <!-- Time slots -->
-    <div class="p-6">
-      <div v-if="loading" class="grid grid-cols-3 gap-3 sm:grid-cols-4">
-        <Skeleton v-for="i in 12" :key="i" class="h-11 rounded-xl" />
-      </div>
+      <div class="flex-1 grid grid-cols-7 p-3 gap-x-1 min-h-[200px]">
+        <div
+          v-for="day in weekDays"
+          :key="day.iso"
+          class="flex flex-col gap-1.5 px-1 border-r last:border-r-0 border-stone-100 dark:border-stone-800 py-2"
+        >
+          <div v-if="loading" class="space-y-1.5">
+            <div v-for="i in 3" :key="i" class="h-9 rounded-lg bg-stone-100 dark:bg-stone-800 animate-pulse" />
+          </div>
 
-      <div v-else-if="selectedDay">
-        <p class="text-xs font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500 mb-4">
-          Доступні години
-        </p>
-        <div class="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
-          <button
-            v-for="slot in daySlots"
-            :key="slot.start.toISOString()"
-            :disabled="!slot.available"
-            :class="[
-              'flex flex-col items-center justify-center rounded-xl border py-2.5 text-sm font-medium transition-all duration-150',
-              slot.available
-                ? 'border-forest-200 bg-forest-50 text-forest-700 hover:border-forest-400 hover:bg-forest-100 hover:shadow-soft dark:border-forest-800 dark:bg-forest-950/50 dark:text-forest-300 dark:hover:bg-forest-900 cursor-pointer'
-                : 'border-stone-100 bg-stone-50 text-stone-300 line-through cursor-not-allowed dark:border-stone-800 dark:bg-stone-900 dark:text-stone-600',
-            ]"
-            @click="slot.available && $emit('select-slot', slot.start, slot.end)"
-          >
-            {{ formatTime(slot.start) }}
-          </button>
+          <template v-else>
+            <button
+              v-for="slot in getAvailableSlots(day)"
+              :key="slot.start.toISOString()"
+              @click="$emit('select-slot', slot.start, slot.end)"
+              class="w-full py-2 text-sm font-medium rounded-lg border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:border-forest-500 hover:bg-forest-50 hover:text-forest-700 dark:hover:bg-forest-950 dark:hover:text-forest-300 transition-all duration-150 cursor-pointer"
+            >
+              {{ formatTime(slot.start) }}
+            </button>
+          </template>
         </div>
-
-        <p v-if="daySlots.length > 0 && daySlots.every(s => !s.available)" class="text-center text-sm text-stone-400 py-8">
-          На цей день немає вільних місць.<br />Оберіть інший день.
-        </p>
       </div>
 
-      <div v-else class="text-center py-10 text-stone-400 dark:text-stone-500">
-        <CalendarDays class="h-8 w-8 mx-auto mb-3 opacity-40" />
-        <p class="text-sm">Оберіть день для перегляду доступних годин</p>
-      </div>
+      <div class="w-10 border-l border-stone-200 dark:border-stone-800 flex-shrink-0" />
     </div>
+
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import {
   addWeeks, subWeeks, startOfWeek, addDays, format,
   isToday, startOfDay, addHours, isBefore,
 } from 'date-fns'
 import { uk } from 'date-fns/locale'
 import { useReservationStore } from '@/stores/reservations'
-import { Skeleton } from '@/components/ui/skeleton'
 import type { TimeSlot } from '@/types'
 
 const emit = defineEmits<{
@@ -122,72 +85,53 @@ const emit = defineEmits<{
 
 const store = useReservationStore()
 const weekStart = ref(startOfWeek(new Date(), { weekStartsOn: 1 }))
-const selectedDay = ref<string | null>(null)
 
 const WORK_START = 9
 const WORK_END = 19
 
-const weekDays = computed(() => {
-  return Array.from({ length: 7 }, (_, i) => {
+const weekDays = computed(() =>
+  Array.from({ length: 7 }, (_, i) => {
     const d = addDays(weekStart.value, i)
     return {
-      date: format(d, 'd'),
-      weekdayShort: format(d, 'EEE', { locale: uk }).slice(0, 2),
+      dateLabel: format(d, 'd MMM', { locale: uk }),
+      weekdayLabel: format(d, 'EEEE', { locale: uk }),
       iso: format(d, 'yyyy-MM-dd'),
       isToday: isToday(d),
       isPast: isBefore(startOfDay(d), startOfDay(new Date())),
       raw: d,
     }
   })
-})
-
-const monthLabel = computed(() =>
-  format(weekStart.value, 'LLLL yyyy', { locale: uk })
 )
 
-const weekRangeLabel = computed(() => {
-  const end = addDays(weekStart.value, 6)
-  return `${format(weekStart.value, 'd')} — ${format(end, 'd MMM', { locale: uk })}`
-})
-
 const canGoPrev = computed(() => {
-  const thisWeekStart = startOfWeek(new Date(), { weekStartsOn: 1 })
-  return isBefore(thisWeekStart, weekStart.value)
+  const thisWeek = startOfWeek(new Date(), { weekStartsOn: 1 })
+  return isBefore(thisWeek, weekStart.value)
 })
 
 const loading = computed(() => store.loading)
 
-const daySlots = computed((): TimeSlot[] => {
-  if (!selectedDay.value) return []
-  const day = weekDays.value.find(d => d.iso === selectedDay.value)
-  if (!day) return []
-
+function getAvailableSlots(day: { raw: Date; isPast: boolean }): TimeSlot[] {
+  if (day.isPast) return []
   const slots: TimeSlot[] = []
   for (let h = WORK_START; h < WORK_END; h++) {
     const start = new Date(day.raw)
     start.setHours(h, 0, 0, 0)
     const end = addHours(start, 1)
-    const isPastSlot = isBefore(start, new Date())
-    const isBooked = store.isSlotBooked(start, end)
-    slots.push({ start, end, available: !isPastSlot && !isBooked })
+    if (!isBefore(start, new Date()) && !store.isSlotBooked(start, end)) {
+      slots.push({ start, end, available: true })
+    }
   }
   return slots
-})
+}
 
 function formatTime(date: Date) {
   return format(date, 'HH:mm')
 }
 
-function selectDay(iso: string) {
-  selectedDay.value = iso
-}
-
 function prevWeek() {
   const prev = subWeeks(weekStart.value, 1)
   const thisWeek = startOfWeek(new Date(), { weekStartsOn: 1 })
-  if (!isBefore(prev, thisWeek)) {
-    weekStart.value = prev
-  }
+  if (!isBefore(prev, thisWeek)) weekStart.value = prev
 }
 
 function nextWeek() {
@@ -203,9 +147,7 @@ async function fetchSlots() {
 
 watch(weekStart, fetchSlots)
 
-onMounted(() => {
-  fetchSlots()
-  const today = weekDays.value.find(d => d.isToday && !d.isPast)
-  if (today) selectedDay.value = today.iso
-})
+onMounted(() => fetchSlots())
+
+defineExpose({ fetchSlots })
 </script>
