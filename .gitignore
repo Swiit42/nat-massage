@@ -1,0 +1,17 @@
+node_modules/
+dist/
+service_key_google.json
+.env
+*.db
+*.db-journal
+prisma/dev.db
+prisma/dev.db-shm
+prisma/dev.db-wal
+.DS_Store
+*.local
+*.log
+node_modules/.tmp/
+
+credentials
+*.json
+.vscode
