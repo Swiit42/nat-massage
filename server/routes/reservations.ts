@@ -19,6 +19,7 @@ const reservationSchema = z.object({
 
 // GET /api/reservations — liste des réservations (admin)
 router.get('/', requireAuth, async (_req, res) => {
+  
   try {
     const reservations = await prisma.reservation.findMany({
       orderBy: { startTime: 'asc' },

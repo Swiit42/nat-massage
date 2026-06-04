@@ -39,6 +39,7 @@ export async function createCalendarEvent(data: {
 
   const result = await calendar.events.insert({ calendarId: CALENDAR_ID, requestBody: event })
   console.log('[Google Calendar] Événement créé :', result.data.htmlLink)
+  
   return result.data
 }
 
