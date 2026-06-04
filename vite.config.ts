@@ -4,7 +4,7 @@
 
   export default defineConfig({
     plugins: [vue()],
-    base: '/',
+    base: '/nat-massage/',
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
