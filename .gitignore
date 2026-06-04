@@ -13,5 +13,4 @@ prisma/dev.db-wal
 node_modules/.tmp/
 
 credentials
-*.json
 .vscode
