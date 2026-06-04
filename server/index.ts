@@ -12,6 +12,7 @@ app.use(cors({
     'http://localhost:5173',
     'https://swiit42.github.io',
     'https://nat-massage-production.up.railway.app',
+    'https://nat-massage.vercel.app',
   ],
   credentials: true,
 }))
