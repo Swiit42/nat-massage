@@ -16,7 +16,7 @@
       </div>
 
       <!-- Form -->
-      <form @submit.prevent="onSubmit" class="space-y-4">
+      <form @submit.prevent="onSubmit" @keydown.enter="handleEnter" class="space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <!-- First name -->
           <div class="space-y-1.5">
@@ -158,6 +158,13 @@ const slotLabel = computed(() => {
   const endT = format(end, 'HH:mm')
   return `${date} · ${startT} — ${endT}`
 })
+
+function handleEnter(e: KeyboardEvent) {
+  if ((e.target as HTMLElement).tagName !== 'TEXTAREA') {
+    e.preventDefault()
+    onSubmit()
+  }
+}
 
 const onSubmit = handleSubmit(async (values) => {
   if (!props.selectedSlot) return
