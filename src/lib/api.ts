@@ -1,9 +1,9 @@
 import axios from 'axios'
 
-const api = axios.create({
-  baseURL: import.meta.env.DEV
-    ? ''
-    : 'https://nat-massage-production.up.railway.app',
-})
+const baseURL = window.location.hostname === 'localhost'
+  ? ''
+  : 'https://nat-massage-production.up.railway.app'
+
+const api = axios.create({ baseURL })
 
 export default api
