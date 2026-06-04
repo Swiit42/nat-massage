@@ -1,5 +1,8 @@
 import 'dotenv/config'
 import express from 'express'
+
+process.on('uncaughtException', (err) => console.error('[Server] uncaughtException:', err))
+process.on('unhandledRejection', (err) => console.error('[Server] unhandledRejection:', err))
 import cors from 'cors'
 import reservationsRouter from './routes/reservations.js'
 import adminRouter from './routes/admin.js'
