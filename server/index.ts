@@ -7,11 +7,14 @@ import adminRouter from './routes/admin.js'
 const app = express()
 const PORT = process.env.PORT || 3001
 
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://swiit42.github.io']
-  : ['http://localhost:5173']
-
-app.use(cors({ origin: allowedOrigins, credentials: true }))
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://swiit42.github.io',
+    'https://nat-massage-production.up.railway.app',
+  ],
+  credentials: true,
+}))
 app.use(express.json())
 
 app.use('/api/reservations', reservationsRouter)
